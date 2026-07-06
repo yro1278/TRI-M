@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("staff")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id       Int     @id @default(autoincrement())
+  name     String
+  brand    String
+  price    Float
+  cost     Float
+  originalPrice Float?
+  rating   Float   @default(0)
+  reviews  Int     @default(0)
+  badge    String?
+  image    String  @default("📦")
+  category String
+  inStock  Boolean @default(true)
+  stock    Int     @default(0)
+  sku      String
+  createdAt String
+}
+
+model Supplier {
+  id          Int     @id @default(autoincrement())
+  name        String
+  contact     String
+  email       String
+  phone       String
+  address     String
+  categories  String
+  rating      Float   @default(0)
+  status      String  @default("active")
+  totalOrders Int     @default(0)
+  onTimeDelivery    Int @default(0)
+  qualityRating     Int @default(0)
+  pricingCompetitiveness Int @default(0)
+  responseTime      Int @default(0)
+  orderAccuracy     Int @default(0)
+  evaluationScore   Int @default(0)
+  evaluationGrade   String @default("C")
+  logo        String  @default("🏢")
+  since       String
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  orderNo       String
+  customer      String
+  email         String
+  subtotal      Float
+  shipping      Float    @default(0)
+  tax           Float    @default(0)
+  total         Float
+  status        String   @default("pending")
+  paymentMethod String
+  createdAt     String
+  deliveredAt   String?
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        Int    @id @default(autoincrement())
+  productId Int
+  name      String
+  price     Float
+  quantity  Int
+  orderId   Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model SalesRecord {
+  id      Int    @id @default(autoincrement())
+  month   String
+  year    Int
+  revenue Float
+  orders  Int
+  cost    Float
+}
+
+model Activity {
+  id     Int    @id @default(autoincrement())
+  type   String
+  text   String
+  time   String
+  amount String?
+}

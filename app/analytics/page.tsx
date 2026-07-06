@@ -1,0 +1,183 @@
+"use client";
+
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line,
+} from "recharts";
+import { RefreshCw } from "lucide-react";
+import { useSales, useProducts } from "../data/use-store";
+import type { SalesRecord } from "@/lib/api";
+
+function RevenueTrend({ sales }: { sales: SalesRecord[] }) {
+  const data = sales.map((d) => ({ name: d.month.slice(0, 3), Revenue: d.revenue }));
+  return (
+    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
+      <div className="p-5">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Revenue Trend</h3>
+        <div className="h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" strokeOpacity={0.4} vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--color-muted)" }} dy={6} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--color-muted)" }} dx={-4} />
+              <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "12px", fontSize: "12px", boxShadow: "var(--shadow-lg)", padding: "8px 12px" }} />
+              <Line type="monotone" dataKey="Revenue" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 3, fill: "var(--color-primary)" }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const COLORS = ["#4f46e5", "#ec4899", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"];
+
+function CategoryPie({ data }: { data: { name: string; count: number }[] }) {
+  return (
+    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
+      <div className="p-5">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Categories</h3>
+        <div className="h-56 flex items-center gap-4">
+          <ResponsiveContainer width="60%" height="100%">
+            <PieChart>
+              <Pie data={data} cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="count" strokeWidth={0}>
+                {data.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
+              </Pie>
+              <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "12px", fontSize: "12px", padding: "8px 12px" }} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="space-y-2">
+            {data.map((d, i) => (
+              <div key={d.name} className="flex items-center gap-2 text-xs text-muted/65">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                {d.name} <span className="text-foreground font-medium">{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfitAnalysis({ sales }: { sales: SalesRecord[] }) {
+  const data = sales.map((d) => ({ name: d.month.slice(0, 3), Profit: d.revenue - d.cost }));
+  return (
+    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-emerald-400/35 to-emerald-400/5" />
+      <div className="p-5">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Profit</h3>
+        <div className="h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} barCategoryGap="20%">
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" strokeOpacity={0.4} vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--color-muted)" }} dy={6} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--color-muted)" }} dx={-4} />
+              <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "12px", fontSize: "12px", boxShadow: "var(--shadow-lg)", padding: "8px 12px" }} />
+              <Bar dataKey="Profit" fill="#34d399" radius={[3, 3, 0, 0]} maxBarSize={36} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PerformanceMetrics({ sales }: { sales: SalesRecord[] }) {
+  const totalRev = sales.reduce((s, r) => s + r.revenue, 0);
+  const totalCost = sales.reduce((s, r) => s + r.cost, 0);
+  const totalOrders = sales.reduce((s, r) => s + r.orders, 0);
+  const avgOrderValue = totalRev / (totalOrders || 1);
+  const margin = ((totalRev - totalCost) / totalRev * 100).toFixed(1);
+
+  const metrics = [
+    { label: "Avg Order", value: `$${avgOrderValue.toFixed(0)}`, change: "+5.2%", up: true },
+    { label: "Profit Margin", value: `${margin}%`, change: "+1.8%", up: true },
+    { label: "Cost Ratio", value: `${((totalCost / totalRev) * 100).toFixed(1)}%`, change: "-0.5%", up: false },
+  ];
+
+  return (
+    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-violet-400/35 to-violet-400/5" />
+      <div className="p-5">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Key Metrics</h3>
+        <div className="space-y-2">
+          {metrics.map((m) => (
+            <div key={m.label} className="flex items-center justify-between border-b border-border/10 py-2 last:border-0">
+              <span className="text-sm text-muted/65">{m.label}</span>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-foreground">{m.value}</p>
+                <span className={`text-xs ${m.up ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>{m.change}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  const sales = useSales();
+  const products = useProducts();
+  const catData = useMemo(() => {
+    const cats = [...new Set(products.map((p) => p.category))];
+    return cats.map((name) => ({ name, count: products.filter((p) => p.category === name).length }));
+  }, [products]);
+
+  const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] as const } } };
+  const container = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+
+  return (
+    <motion.div variants={container} initial="hidden" animate="visible" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.div variants={fadeUp} className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Analytics</h1>
+            <p className="text-sm text-muted/65 mt-0.5">Data-driven insights</p>
+          </div>
+        </div>
+        <span className="flex items-center gap-1.5 text-xs text-muted/60">
+          <RefreshCw className="h-3 w-3" /> Auto-refresh
+        </span>
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-5 lg:grid-cols-2 mb-6">
+        <RevenueTrend sales={sales} />
+        <CategoryPie data={catData} />
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-6">
+        <div className="lg:col-span-2"><ProfitAnalysis sales={sales} /></div>
+        <PerformanceMetrics sales={sales} />
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-amber-400/35 to-amber-400/5" />
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-2 w-2 rounded-full bg-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Insights</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { text: "Revenue trending upward with 23% QoQ growth", type: "positive" },
+              { text: "Supplier SPI average is 84%. Consider improvements.", type: "warning" },
+              { text: "Profit margin at 48.2% is healthy.", type: "info" },
+            ].map((i, idx) => (
+              <div key={idx} className={`rounded-[12px] border p-3 text-xs ${
+                i.type === "positive" ? "bg-emerald-50/50 border-emerald-200/50 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" :
+                i.type === "warning" ? "bg-amber-50/50 border-amber-200/50 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400" :
+                "bg-blue-50/50 border-blue-200/50 text-blue-800 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400"
+              }`}>{i.text}</div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
