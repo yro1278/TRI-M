@@ -2,12 +2,55 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, X, Plus, Edit2, Trash2, Grid3X3, List } from "lucide-react";
+import { Search, X, Plus, Edit2, Trash2, Grid3X3, List, AlertCircle, RefreshCw } from "lucide-react";
 import ProductCard from "../components/product-card";
 import ProductForm from "../components/product-form";
 import { useProducts } from "../data/use-store";
 import { addProduct, updateProduct, deleteProduct } from "../data/store";
 import type { Product } from "@/lib/api";
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="h-8 w-1 rounded-full bg-border/50" />
+        <div>
+          <div className="h-7 w-32 rounded bg-border/30 animate-pulse" />
+          <div className="h-4 w-48 rounded bg-border/20 animate-pulse mt-2" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="bg-card rounded-xl border border-border/20 overflow-hidden">
+            <div className="aspect-square bg-border/10 animate-pulse" />
+            <div className="p-4 space-y-2">
+              <div className="h-3 w-20 rounded bg-border/30 animate-pulse" />
+              <div className="h-4 w-32 rounded bg-border/30 animate-pulse" />
+              <div className="h-3 w-16 rounded bg-border/20 animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load products</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function ProductsPage() {
   const storeProducts = useProducts();
@@ -18,7 +61,10 @@ export default function ProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const products = storeProducts;
+  if (storeProducts.loading) return <LoadingSkeleton />;
+  if (storeProducts.error) return <ErrorState message={storeProducts.error} onRetry={storeProducts.refetch} />;
+
+  const products = storeProducts.data;
   const categories = ["All", ...new Set(products.map((p) => p.category))];
   const filtered = products
     .filter((p) => activeCategory === "All" || p.category === activeCategory)
@@ -31,11 +77,13 @@ export default function ProductsPage() {
     setEditing(null);
     setShowForm(false);
     setLoading(false);
+    storeProducts.refetch();
   };
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(id);
+      storeProducts.refetch();
     }
   };
 

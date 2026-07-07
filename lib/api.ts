@@ -5,11 +5,23 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json", ...options?.headers },
     ...options,
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(body || `API error: ${res.status}`);
+  }
   return res.json();
 }
 
 export const api = {
+  categories: {
+    list: () => fetchJSON<Category[]>(`/categories`),
+    get: (id: number) => fetchJSON<Category>(`/categories/${id}`),
+    create: (data: { name: string }) =>
+      fetchJSON<Category>(`/categories`, { method: "POST", body: JSON.stringify(data) }),
+    update: (id: number, data: { name: string }) =>
+      fetchJSON<Category>(`/categories/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: number) => fetchJSON<{ success: boolean }>(`/categories/${id}`, { method: "DELETE" }),
+  },
   products: {
     list: () => fetchJSON<Product[]>(`/products`),
     get: (id: number) => fetchJSON<Product>(`/products/${id}`),
@@ -33,6 +45,7 @@ export const api = {
       fetchJSON<Supplier>(`/suppliers`, { method: "POST", body: JSON.stringify(data) }),
     update: (id: number, data: Partial<Supplier>) =>
       fetchJSON<Supplier>(`/suppliers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: number) => fetchJSON<{ success: boolean }>(`/suppliers/${id}`, { method: "DELETE" }),
   },
   sales: {
     list: () => fetchJSON<SalesRecord[]>(`/sales`),
@@ -60,8 +73,23 @@ export const api = {
     create: (data: { type: string; text: string; time?: string; amount?: string }) =>
       fetchJSON<Activity>(`/activities`, { method: "POST", body: JSON.stringify(data) }),
   },
+  users: {
+    list: () => fetchJSON<UserResponse[]>(`/users`),
+    get: (id: number) => fetchJSON<UserResponse>(`/users/${id}`),
+    create: (data: { name: string; email: string; password: string; role?: string }) =>
+      fetchJSON<UserResponse>(`/users`, { method: "POST", body: JSON.stringify(data) }),
+    update: (id: number, data: { name?: string; email?: string; role?: string }) =>
+      fetchJSON<UserResponse>(`/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: number) => fetchJSON<{ success: boolean }>(`/users/${id}`, { method: "DELETE" }),
+  },
   seed: () => fetchJSON<{ success: boolean }>(`/seed`, { method: "POST" }),
 };
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
 
 export interface Product {
   id: number;
@@ -174,4 +202,12 @@ export interface ReportResponse {
   data?: Record<string, unknown>;
   monthlyBreakdown?: unknown[];
   ranking?: unknown[];
+}
+
+export interface UserResponse {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
 }

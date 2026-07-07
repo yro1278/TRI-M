@@ -3,7 +3,42 @@
 import { useProducts } from "../data/use-store";
 
 export default function TopProducts() {
-  const products = useProducts().sort((a, b) => b.reviews - a.reviews).slice(0, 6);
+  const storeProducts = useProducts();
+  const products = storeProducts.data.sort((a, b) => b.reviews - a.reviews).slice(0, 6);
+
+  if (storeProducts.loading) {
+    return (
+      <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary/40 to-primary/5" />
+        <div className="p-5 sm:p-6">
+          <div className="h-4 w-32 rounded bg-border/30 animate-pulse mb-4" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3 py-2 border-b border-border/5">
+              <div className="h-8 w-8 rounded-xl bg-border/20 animate-pulse" />
+              <div className="flex-1">
+                <div className="h-3 w-40 rounded bg-border/20 animate-pulse" />
+                <div className="h-2 w-24 rounded bg-border/10 animate-pulse mt-1" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (storeProducts.error) {
+    return (
+      <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary/40 to-primary/5" />
+        <div className="p-5 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Top Selling Products</h3>
+          </div>
+          <p className="text-xs text-muted/60 py-8 text-center">Failed to load products</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
@@ -18,6 +53,9 @@ export default function TopProducts() {
             View all <span className="text-[10px]">→</span>
           </a>
         </div>
+        {products.length === 0 ? (
+          <p className="text-xs text-muted/60 py-8 text-center">No products available</p>
+        ) : (
         <div className="overflow-x-auto -mx-5 sm:-mx-6">
           <table className="w-full text-left">
             <thead>
@@ -29,7 +67,7 @@ export default function TopProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p, idx) => {
+              {products.map((p) => {
                 const margin = ((p.price - p.cost) / p.price * 100).toFixed(1);
                 const estRev = Math.round((p.reviews / 1000) * 1000);
                 return (
@@ -56,6 +94,7 @@ export default function TopProducts() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );

@@ -111,8 +111,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
   const workspaceRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const pendingCount = orders.filter((o) => o.status === "pending" || o.status === "processing").length;
-  const productCount = products.length;
+  const pendingCount = orders.data?.filter((o) => o.status === "pending" || o.status === "processing").length ?? 0;
+  const productCount = products.data?.length ?? 0;
 
   const isActive = (href: string) => {
     if (href === "#") return false;
@@ -281,7 +281,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                     >
                       <div className={`h-1.5 w-1.5 rounded-full ${ws.active ? "bg-primary" : "bg-border"}`} />
                       {ws.label}
-                      {ws.active && <span className="ml-auto text-[9px] text-primary/60 font-medium">Active</span>}
+                      {ws.active && <span className="ml-auto text-[10px] text-primary/60 font-medium">Active</span>}
                     </button>
                   ))}
                 </motion.div>
@@ -312,7 +312,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                   placeholder="Search..."
                   className="w-full rounded-lg border border-border/30 bg-surface/40 py-1.5 pl-8 pr-8 text-xs text-foreground outline-none placeholder:text-muted/75 transition-all focus:border-primary/20 focus:bg-surface focus:shadow-sm"
                 />
-                <kbd className="absolute right-2 top-1/2 -translate-y-1/2 rounded bg-border/30 px-1 py-0.5 text-[9px] font-medium text-muted/55">⌘K</kbd>
+                <kbd className="absolute right-2 top-1/2 -translate-y-1/2 rounded bg-border/30 px-1 py-0.5 text-[10px] font-medium text-muted/55">⌘K</kbd>
               </div>
             </div>
           </motion.div>
@@ -326,7 +326,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           <div className="mb-4">
             <div className="flex items-center gap-2 px-2 mb-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-400/50 to-amber-400/10" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted/55">Pinned</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted/55">Pinned</span>
               <span className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
               <Star className="h-2.5 w-2.5 text-amber-400/40" />
             </div>
@@ -350,8 +350,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                         href={item.href}
                         onMouseEnter={() => setHoveredItem(label)}
                         onMouseLeave={() => setHoveredItem(null)}
-                        className={`group relative flex items-center gap-2.5 rounded-lg text-xs transition-all duration-150 ${
-                          collapsed ? "justify-center p-2" : "px-2 py-1.5"
+className={`group relative flex items-center gap-2.5 rounded-lg text-sm transition-all duration-150 ${
+                             collapsed ? "justify-center p-2" : "px-2 py-1.5"
                         } ${
                           active ? "text-primary font-medium" : "text-muted/65 hover:text-foreground"
                         }`}
@@ -407,7 +407,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
               {!collapsed && (
                 <div className="flex items-center gap-2 px-2 mb-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-primary/40 to-primary/10" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted/55">
+                  <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted/55">
                     {section.label}
                   </span>
                   <span className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
@@ -429,8 +429,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                             onClick={() => toggleExpand(item.label)}
                             onMouseEnter={() => setHoveredItem(item.label)}
                             onMouseLeave={() => setHoveredItem(null)}
-                            className={`group relative flex w-full items-center gap-2.5 rounded-lg text-xs transition-all duration-150 ${
-                              collapsed ? "justify-center p-2" : "px-2 py-1.5"
+className={`group relative flex w-full items-center gap-2.5 rounded-lg text-sm transition-all duration-150 ${
+                               collapsed ? "justify-center p-2" : "px-2 py-1.5"
                             } ${
                               active || childActive ? "text-primary font-medium" : "text-muted/65 hover:text-foreground"
                             }`}
@@ -457,7 +457,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                               <>
                                 <span className="relative z-10 flex-1 text-left truncate">{item.label}</span>
                                 {item.badge && (
-                                  <span className={`relative z-10 rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${
+                                  <span className={`relative z-10 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
                                     item.badge === "New" || item.badge === "Beta"
                                       ? "bg-primary/10 text-primary"
                                       : "bg-border/40 text-muted/70"
@@ -491,8 +491,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                                         key={child.label}
                                         href={child.href}
                                         onClick={onClose}
-                                        className={`group relative flex items-center gap-2 rounded-md px-2 py-1 text-xs transition-all ${
-                                          childActive ? "text-primary font-medium bg-gradient-to-r from-primary/[0.04] to-transparent" : "text-muted/60 hover:text-foreground"
+className={`group relative flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-all ${
+                                           childActive ? "text-primary font-medium bg-gradient-to-r from-primary/[0.04] to-transparent" : "text-muted/60 hover:text-foreground"
                                         }`}
                                       >
                                         <span className={`h-1 w-1.5 rounded-full transition-colors ${
@@ -500,7 +500,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                                         }`} />
                                         <span>{child.label}</span>
                                         {child.badge && (
-                                          <span className="ml-auto rounded-full bg-primary/10 text-primary px-1 py-0.5 text-[9px] font-semibold">{child.badge}</span>
+                                          <span className="ml-auto rounded-full bg-primary/10 text-primary px-1 py-0.5 text-[10px] font-semibold">{child.badge}</span>
                                         )}
                                       </Link>
                                     );
@@ -544,22 +544,22 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                             <>
                               <span className="relative z-10 flex-1 truncate">{item.label}</span>
                               {item.badge && (
-                                <span className={`relative z-10 rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${
+                                <span className={`relative z-10 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
                                   item.badge === "New" || item.badge === "Beta"
                                     ? "bg-primary/10 text-primary"
                                     : "bg-border/40 text-muted/70"
                                 }`}>{item.badge}</span>
                               )}
                               {item.label === "Orders" && pendingCount > 0 && (
-                                <span className="relative z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500/10 text-[9px] font-bold text-amber-600 dark:text-amber-400 px-1">
+                                <span className="relative z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500/10 text-[10px] font-bold text-amber-600 dark:text-amber-400 px-1">
                                   {pendingCount}
                                 </span>
                               )}
                               {item.label === "Products" && productCount > 0 && (
-                                <span className="relative z-10 text-[10px] text-muted/75">{productCount}</span>
+                                <span className="relative z-10 text-xs text-muted/75">{productCount}</span>
                               )}
                               {item.shortcut && !collapsed && (
-                                <span className="relative z-10 text-[9px] text-muted/45 group-hover:text-muted/55 transition-colors">{item.shortcut}</span>
+                                <span className="relative z-10 text-[10px] text-muted/45 group-hover:text-muted/55 transition-colors">{item.shortcut}</span>
                               )}
                             </>
                           )}
@@ -584,7 +584,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           <div className="mb-4">
             <div className="flex items-center gap-2 px-2 mb-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-violet-400/50 to-violet-400/10" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted/55">Recent</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted/55">Recent</span>
               <span className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
               <History className="h-2.5 w-2.5 text-violet-400/40" />
             </div>
@@ -598,7 +598,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                   <Link
                     key={label}
                     href={item.href || "#"}
-                    className="group flex items-center gap-2.5 rounded-lg px-2 py-1 text-xs text-muted/55 hover:text-foreground transition-all"
+                    className="group flex items-center gap-2.5 rounded-lg px-2 py-1 text-sm text-muted/55 hover:text-foreground transition-all"
                   >
                     <Icon className="h-3 w-3 shrink-0" />
                     <span className="truncate">{item.label}</span>
@@ -629,13 +629,13 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
         ) : (
           <Link
             href="/products"
-            className="flex items-center gap-2 rounded-lg border border-dashed border-border/30 px-3 py-2 text-xs text-muted/55 hover:text-primary hover:border-primary/30 transition-all group"
+            className="flex items-center gap-2 rounded-lg border border-dashed border-border/30 px-3 py-2 text-sm text-muted/55 hover:text-primary hover:border-primary/30 transition-all group"
           >
             <motion.div whileHover={{ rotate: 90 }} transition={{ duration: 0.2 }}>
               <Plus className="h-3.5 w-3.5" />
             </motion.div>
             <span>Quick Add</span>
-            <span className="ml-auto text-[9px] text-muted/45 group-hover:text-primary/40 transition-colors">⌘N</span>
+            <span className="ml-auto text-[10px] text-muted/45 group-hover:text-primary/40 transition-colors">⌘N</span>
           </Link>
         )}
       </div>
@@ -650,7 +650,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                 className="relative mx-auto flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/10 transition-all hover:ring-primary/30"
                 title="Profile"
               >
-                <span className="text-xs font-semibold text-primary">JC</span>
+                <span className="text-xs font-semibold text-primary">TA</span>
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-sidebar" />
               </button>
               <AnimatePresence>
@@ -676,13 +676,13 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
             >
               <div className="relative shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/10">
-                  <span className="text-xs font-semibold text-primary">JC</span>
+<span className="text-xs font-semibold text-primary">TA</span>
                 </div>
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-sidebar" />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-xs font-medium text-foreground truncate">Jane Cooper</p>
-                <p className="text-[10px] text-muted/60 truncate">admin@merchflow.com</p>
+                <p className="text-sm font-medium text-foreground truncate">Tyrone Alariao</p>
+                <p className="text-xs text-muted/60 truncate">admin@merchflow.com</p>
               </div>
               <motion.div
                 animate={{ rotate: showProfileMenu ? 180 : 0 }}
@@ -753,8 +753,8 @@ function ProfileMenuContent() {
   return (
     <>
       <div className="px-3 py-2 border-b border-border/10">
-        <p className="text-xs font-medium text-foreground">Jane Cooper</p>
-        <p className="text-[10px] text-muted/60">Administrator</p>
+        <p className="text-sm font-medium text-foreground">Tyrone Alariao</p>
+        <p className="text-xs text-muted/60">Administrator</p>
       </div>
       <div className="py-1">
         {[

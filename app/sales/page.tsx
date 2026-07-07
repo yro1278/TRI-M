@@ -2,17 +2,65 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, TrendingUp, DollarSign, ShoppingCart, Percent, Calendar, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, TrendingUp, DollarSign, ShoppingCart, Percent, Calendar, ArrowUp, ArrowDown, AlertCircle, RefreshCw } from "lucide-react";
 import { useSales, useOrders } from "../data/use-store";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line,
 } from "recharts";
 
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-card rounded-[20px] p-5 border border-border/20">
+            <div className="h-3 w-16 rounded bg-border/30 animate-pulse mb-3" />
+            <div className="h-6 w-20 rounded bg-border/30 animate-pulse" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
+        <div className="lg:col-span-2 bg-card rounded-[20px] p-5 border border-border/20">
+          <div className="h-4 w-24 rounded bg-border/30 animate-pulse mb-4" />
+          <div className="h-56 rounded bg-border/10 animate-pulse" />
+        </div>
+        <div className="bg-card rounded-[20px] p-5 border border-border/20">
+          <div className="h-4 w-20 rounded bg-border/30 animate-pulse mb-4" />
+          <div className="h-56 rounded bg-border/10 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load sales data</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function SalesPage() {
-  const sales = useSales();
-  const orders = useOrders();
+  const storeSales = useSales();
+  const storeOrders = useOrders();
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState("monthly");
+
+  if (storeSales.loading || storeOrders.loading) return <LoadingSkeleton />;
+  if (storeSales.error || storeOrders.error) return <ErrorState message={storeSales.error || storeOrders.error || ""} onRetry={() => { storeSales.refetch(); storeOrders.refetch(); }} />;
+
+  const sales = storeSales.data;
+  const orders = storeOrders.data;
 
   const totalRevenue = sales.reduce((s, r) => s + r.revenue, 0);
   const totalCost = sales.reduce((s, r) => s + r.cost, 0);
@@ -176,7 +224,10 @@ export default function SalesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((o) => (
+              {filteredOrders.length === 0 ? (
+                <tr><td colSpan={6} className="p-8 text-center text-sm text-muted/60">No transactions found</td></tr>
+              ) : (
+              filteredOrders.map((o) => (
                 <tr key={o.id} className="border-b border-border/5 last:border-0 hover:bg-border/10 transition-colors">
                   <td className="p-3 font-medium text-foreground">{o.orderNo}</td>
                   <td className="p-3 text-foreground">{o.customer}</td>
@@ -202,7 +253,7 @@ export default function SalesPage() {
                     </span>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

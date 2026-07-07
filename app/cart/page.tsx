@@ -25,6 +25,7 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
   const [ordered, setOrdered] = useState(false);
   const [orderNo, setOrderNo] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getProducts().then((products) => {
@@ -33,7 +34,8 @@ export default function CartPage() {
         { productId: 2, name: "Premium Cotton Hoodie", brand: "UrbanCore", price: 89.99, quantity: 2, image: "👕", sku: "UC-042" },
         { productId: 7, name: "Portable Bluetooth Speaker", brand: "BassDrop", price: 79.99, quantity: 1, image: "🔊", sku: "BD-770" },
       ].filter((c) => products.some((p) => p.id === c.productId)));
-    });
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   const updateQty = (productId: number, delta: number) => {
@@ -57,6 +59,17 @@ export default function CartPage() {
 
   const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] as const } } };
   const container = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-24 rounded bg-border/30" />
+          <div className="h-32 rounded-xl bg-border/10" />
+        </div>
+      </div>
+    );
+  }
 
   if (ordered) {
     return (

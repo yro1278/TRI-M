@@ -1,5 +1,14 @@
 import type { Product, Supplier, Order, SalesRecord, Activity } from "@/lib/api";
 
+export const seedCategories = [
+  { name: "Electronics", slug: "electronics" },
+  { name: "Fashion", slug: "fashion" },
+  { name: "Home & Living", slug: "home-living" },
+  { name: "Sports", slug: "sports" },
+  { name: "Beauty", slug: "beauty" },
+  { name: "Accessories", slug: "accessories" },
+];
+
 export const seedProducts: Product[] = [
   { id: 1, name: "Wireless Noise-Cancelling Headphones", brand: "SonicWave", price: 249.99, cost: 145.00, originalPrice: 349.99, rating: 4.8, reviews: 2341, badge: "-29%", image: "🎧", category: "Electronics", inStock: true, stock: 156, sku: "SNC-001", createdAt: "2025-01-15" },
   { id: 2, name: "Premium Cotton Hoodie", brand: "UrbanCore", price: 89.99, cost: 38.00, rating: 4.6, reviews: 1523, badge: "Best Seller", image: "👕", category: "Fashion", inStock: true, stock: 342, sku: "UC-042", createdAt: "2025-02-10" },

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Package } from "lucide-react";
+import { Search, Package, AlertCircle, RefreshCw } from "lucide-react";
 import { useOrders } from "../data/use-store";
 import { updateOrderStatus } from "../data/store";
 
@@ -14,15 +14,61 @@ const statusColors: Record<string, string> = {
   cancelled: "badge-red",
 };
 
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="h-8 w-1 rounded-full bg-border/50" />
+        <div>
+          <div className="h-7 w-24 rounded bg-border/30 animate-pulse" />
+          <div className="h-4 w-36 rounded bg-border/20 animate-pulse mt-2" />
+        </div>
+      </div>
+      <div className="bg-card rounded-[20px] border border-border/20 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-border/5">
+            <div className="h-4 w-24 rounded bg-border/30 animate-pulse" />
+            <div className="h-4 w-20 rounded bg-border/20 animate-pulse" />
+            <div className="h-4 w-12 rounded bg-border/20 animate-pulse" />
+            <div className="h-4 w-16 rounded bg-border/30 animate-pulse ml-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load orders</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function OrdersPage() {
   const storeOrders = useOrders();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const orders = [...storeOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  if (storeOrders.loading) return <LoadingSkeleton />;
+  if (storeOrders.error) return <ErrorState message={storeOrders.error} onRetry={storeOrders.refetch} />;
+
+  const orders = [...storeOrders.data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handleStatus = async (id: number, status: string) => {
     await updateOrderStatus(id, status);
+    storeOrders.refetch();
   };
 
   const filtered = orders.filter((o) => {

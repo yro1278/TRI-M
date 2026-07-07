@@ -2,9 +2,54 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Plus, Star, Phone, Mail, MapPin, Award } from "lucide-react";
+import { Search, Plus, Star, Phone, Mail, Award, AlertCircle, RefreshCw } from "lucide-react";
 import { useSuppliers } from "../data/use-store";
 import type { Supplier } from "@/lib/api";
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-card rounded-[20px] p-5 border border-border/20">
+            <div className="h-3 w-16 rounded bg-border/30 animate-pulse mb-3" />
+            <div className="h-6 w-12 rounded bg-border/30 animate-pulse" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-card rounded-[20px] p-5 border border-border/20">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="h-8 w-8 rounded-xl bg-border/20 animate-pulse" />
+              <div>
+                <div className="h-4 w-32 rounded bg-border/30 animate-pulse" />
+                <div className="h-3 w-24 rounded bg-border/20 animate-pulse mt-1" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load suppliers</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function EvaluationScorecard({ supplier: s, onClose }: { supplier: Supplier; onClose: () => void }) {
   type MetricKey = "onTimeDelivery" | "qualityRating" | "pricingCompetitiveness" | "responseTime" | "orderAccuracy";
@@ -60,7 +105,10 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState("");
   const [evaluating, setEvaluating] = useState<Supplier | null>(null);
 
-  const suppliers = storeSuppliers;
+  if (storeSuppliers.loading) return <LoadingSkeleton />;
+  if (storeSuppliers.error) return <ErrorState message={storeSuppliers.error} onRetry={storeSuppliers.refetch} />;
+
+  const suppliers = storeSuppliers.data;
 
   const kpis = useMemo(() => {
     const active = suppliers.filter((s) => s.status === "active").length;
@@ -120,6 +168,14 @@ export default function SuppliersPage() {
         <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." className="w-56 rounded-[12px] border border-border/40 bg-surface/50 py-1.5 pl-8 pr-3 text-sm text-foreground outline-none transition-all focus:border-primary/20 focus:bg-surface focus:shadow-sm" />
       </motion.div>
 
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center py-20">
+          <div className="h-10 w-10 flex items-center justify-center rounded-[12px] bg-border/20 mb-3">
+            <Search className="h-5 w-5 text-muted/60" />
+          </div>
+          <p className="text-sm text-foreground">No suppliers found</p>
+        </div>
+      ) : (
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
         {filtered.map((s) => (
           <div key={s.id} className="card-hover bg-card rounded-[20px] p-5 border border-border/20 overflow-hidden">
@@ -148,6 +204,7 @@ export default function SuppliersPage() {
           </div>
         ))}
       </motion.div>
+      )}
 
       {evaluating && <EvaluationScorecard supplier={evaluating} onClose={() => setEvaluating(null)} />}
     </motion.div>

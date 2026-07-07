@@ -18,44 +18,50 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+}
+
 model Product {
-  id       Int     @id @default(autoincrement())
-  name     String
-  brand    String
-  price    Float
-  cost     Float
+  id            Int     @id @default(autoincrement())
+  name          String
+  brand         String
+  price         Float
+  cost          Float
   originalPrice Float?
-  rating   Float   @default(0)
-  reviews  Int     @default(0)
-  badge    String?
-  image    String  @default("📦")
-  category String
-  inStock  Boolean @default(true)
-  stock    Int     @default(0)
-  sku      String
-  createdAt String
+  rating        Float   @default(0)
+  reviews       Int     @default(0)
+  badge         String?
+  image         String  @default("📦")
+  category      String
+  inStock       Boolean @default(true)
+  stock         Int     @default(0)
+  sku           String
+  createdAt     String
 }
 
 model Supplier {
-  id          Int     @id @default(autoincrement())
-  name        String
-  contact     String
-  email       String
-  phone       String
-  address     String
-  categories  String
-  rating      Float   @default(0)
-  status      String  @default("active")
-  totalOrders Int     @default(0)
-  onTimeDelivery    Int @default(0)
-  qualityRating     Int @default(0)
-  pricingCompetitiveness Int @default(0)
-  responseTime      Int @default(0)
-  orderAccuracy     Int @default(0)
-  evaluationScore   Int @default(0)
-  evaluationGrade   String @default("C")
-  logo        String  @default("🏢")
-  since       String
+  id                      Int     @id @default(autoincrement())
+  name                    String
+  contact                 String
+  email                   String
+  phone                   String
+  address                 String
+  categories              String
+  rating                  Float   @default(0)
+  status                  String  @default("active")
+  totalOrders             Int     @default(0)
+  onTimeDelivery          Int     @default(0)
+  qualityRating           Int     @default(0)
+  pricingCompetitiveness  Int     @default(0)
+  responseTime            Int     @default(0)
+  orderAccuracy           Int     @default(0)
+  evaluationScore         Int     @default(0)
+  evaluationGrade         String  @default("C")
+  logo                    String  @default("🏢")
+  since                   String
 }
 
 model Order {
@@ -96,7 +102,7 @@ model SalesRecord {
 }
 
 model Activity {
-  id     Int    @id @default(autoincrement())
+  id     Int     @id @default(autoincrement())
   type   String
   text   String
   time   String

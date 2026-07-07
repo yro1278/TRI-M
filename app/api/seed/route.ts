@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { seedProducts, seedSuppliers, seedOrders, seedSales, seedActivities } from "@/app/data/seed";
+import { seedProducts, seedSuppliers, seedOrders, seedSales, seedActivities, seedCategories } from "@/app/data/seed";
 
 export async function POST() {
   const existing = await prisma.user.findFirst();
@@ -11,13 +11,16 @@ export async function POST() {
 
   const password = await bcrypt.hash("admin123", 10);
   await prisma.user.create({
-    data: {
-      name: "Jane Cooper",
-      email: "admin@merchflow.com",
-      password,
-      role: "admin",
-    },
+    data: { name: "Tyrone Alariao", email: "admin@merchflow.com", password, role: "admin" },
   });
+
+  for (const c of seedCategories) {
+    await prisma.category.upsert({
+      where: { slug: c.slug },
+      update: c,
+      create: c,
+    });
+  }
 
   for (const p of seedProducts) {
     await prisma.product.create({ data: p });
@@ -44,7 +47,7 @@ export async function POST() {
         createdAt: o.createdAt,
         deliveredAt: o.deliveredAt ?? null,
         items: {
-          create: o.items.map((i: { productId: number; name: string; price: number; quantity: number }) => ({
+          create: o.items.map((i) => ({
             productId: i.productId,
             name: i.name,
             price: i.price,

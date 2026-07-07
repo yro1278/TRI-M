@@ -6,7 +6,8 @@ import {
 } from "recharts";
 
 export default function SalesChart() {
-  const data = useSales();
+  const storeSales = useSales();
+  const data = storeSales.data;
   const chartData = data.map((d) => ({
     name: d.month.slice(0, 3),
     Revenue: d.revenue,
@@ -32,6 +33,19 @@ export default function SalesChart() {
             </span>
           </div>
         </div>
+        {storeSales.loading ? (
+          <div className="h-56 sm:h-64 flex items-center justify-center">
+            <div className="h-52 w-full rounded bg-border/10 animate-pulse" />
+          </div>
+        ) : storeSales.error ? (
+          <div className="h-56 sm:h-64 flex items-center justify-center">
+            <p className="text-xs text-muted/60">Failed to load chart data</p>
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="h-56 sm:h-64 flex items-center justify-center">
+            <p className="text-xs text-muted/60">No sales data available</p>
+          </div>
+        ) : (
         <div className="h-56 sm:h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} barGap={4} barCategoryGap="16%">
@@ -55,6 +69,7 @@ export default function SalesChart() {
             </BarChart>
           </ResponsiveContainer>
         </div>
+        )}
       </div>
     </div>
   );

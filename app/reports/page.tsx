@@ -2,11 +2,46 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Printer, TrendingUp, Truck, Calendar, FileText, FileSpreadsheet } from "lucide-react";
+import { Download, Printer, TrendingUp, Truck, Calendar, FileText, FileSpreadsheet, AlertCircle, RefreshCw } from "lucide-react";
 import { useSales, useOrders, useSuppliers } from "../data/use-store";
 import type { SalesRecord, Supplier, Order } from "@/lib/api";
 
 type ReportType = "sales" | "supplier";
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="bg-card rounded-[20px] border border-border/20 p-6">
+        <div className="h-4 w-32 rounded bg-border/30 animate-pulse mb-4" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-5">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-card rounded-[20px] p-4 border border-border/20">
+              <div className="h-3 w-16 rounded bg-border/30 animate-pulse mb-2" />
+              <div className="h-6 w-20 rounded bg-border/30 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load report data</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function SalesReportContent({ sales, orders }: { sales: SalesRecord[]; orders: Order[] }) {
   const totalRevenue = sales.reduce((s, r) => s + r.revenue, 0);
@@ -32,6 +67,9 @@ function SalesReportContent({ sales, orders }: { sales: SalesRecord[]; orders: O
           </div>
         ))}
       </div>
+      {sales.length === 0 ? (
+        <p className="text-sm text-muted/60 py-8 text-center">No sales data available</p>
+      ) : (
       <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
         <table className="w-full text-left text-sm">
@@ -57,6 +95,7 @@ function SalesReportContent({ sales, orders }: { sales: SalesRecord[]; orders: O
           </tbody>
         </table>
       </div>
+      )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="card-hover bg-card rounded-[20px] p-4 border border-border/20 overflow-hidden"><div className="h-1 bg-gradient-to-r from-amber-400/35 to-amber-400/5 -mx-4 -mt-4 mb-3" /><p className="text-[11px] font-medium text-muted/70 uppercase tracking-[0.06em]">Pending</p><p className="mt-1.5 text-xl font-semibold text-amber-600 dark:text-amber-400">{orders.filter((o) => o.status === "pending" || o.status === "processing").length}</p></div>
         <div className="card-hover bg-card rounded-[20px] p-4 border border-border/20 overflow-hidden"><div className="h-1 bg-gradient-to-r from-emerald-400/35 to-emerald-400/5 -mx-4 -mt-4 mb-3" /><p className="text-[11px] font-medium text-muted/70 uppercase tracking-[0.06em]">Delivered</p><p className="mt-1.5 text-xl font-semibold text-emerald-600 dark:text-emerald-400">{deliveredOrders}</p></div>
@@ -88,6 +127,9 @@ function SupplierReportContent({ suppliers }: { suppliers: Supplier[] }) {
           </div>
         ))}
       </div>
+      {suppliers.length === 0 ? (
+        <p className="text-sm text-muted/60 py-8 text-center">No supplier data available</p>
+      ) : (
       <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
         <table className="w-full text-left text-sm">
@@ -111,6 +153,7 @@ function SupplierReportContent({ suppliers }: { suppliers: Supplier[] }) {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
@@ -118,9 +161,18 @@ function SupplierReportContent({ suppliers }: { suppliers: Supplier[] }) {
 export default function ReportsPage() {
   const [type, setType] = useState<ReportType>("sales");
   const [period, setPeriod] = useState("2026");
-  const sales = useSales();
-  const suppliers = useSuppliers();
-  const orders = useOrders();
+  const storeSales = useSales();
+  const storeSuppliers = useSuppliers();
+  const storeOrders = useOrders();
+
+  if (storeSales.loading || storeSuppliers.loading || storeOrders.loading) return <LoadingSkeleton />;
+  if (storeSales.error || storeSuppliers.error || storeOrders.error) {
+    return <ErrorState message={storeSales.error || storeSuppliers.error || storeOrders.error || ""} onRetry={() => { storeSales.refetch(); storeSuppliers.refetch(); storeOrders.refetch(); }} />;
+  }
+
+  const sales = storeSales.data;
+  const suppliers = storeSuppliers.data;
+  const orders = storeOrders.data;
   const generateDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
   const exportCSV = () => {

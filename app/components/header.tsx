@@ -36,7 +36,7 @@ export default function Header({
               placeholder="Search anything..."
               className="w-full rounded-xl border border-border/30 bg-surface/40 py-1.5 pl-10 pr-10 text-sm text-foreground outline-none placeholder:text-muted/20 transition-all focus:border-primary/20 focus:bg-surface focus:shadow-sm"
             />
-            <kbd className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-lg bg-border/30 px-1.5 py-0.5 text-[10px] font-medium text-muted/25 sm:inline">⌘K</kbd>
+            <kbd className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-lg bg-border/30 px-1.5 py-0.5 text-xs font-medium text-muted/35 sm:inline">⌘K</kbd>
           </div>
         </div>
 
@@ -54,7 +54,7 @@ export default function Header({
           <div className="ml-2 pl-2 border-l border-border/20 flex items-center gap-2">
             <div className="h-8 w-8 overflow-hidden rounded-xl ring-2 ring-border/30 transition-all hover:ring-primary/30">
               <Image
-                src="https://ui-avatars.com/api/?name=Jane+Cooper&background=2563eb&color=fff&size=40"
+                src="https://ui-avatars.com/api/?name=Tyrone+Alariao&background=2563eb&color=fff&size=40"
                 alt="" width={32} height={32}
                 className="h-full w-full object-cover"
               />

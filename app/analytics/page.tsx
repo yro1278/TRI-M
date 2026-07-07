@@ -5,9 +5,41 @@ import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line,
 } from "recharts";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import { useSales, useProducts } from "../data/use-store";
 import type { SalesRecord } from "@/lib/api";
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 mb-6">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="bg-card rounded-[20px] border border-border/20 p-5">
+            <div className="h-4 w-24 rounded bg-border/30 animate-pulse mb-4" />
+            <div className="h-48 rounded bg-border/10 animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col items-center py-20">
+        <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-red-50 mb-4">
+          <AlertCircle className="h-6 w-6 text-red-500" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Failed to load analytics</p>
+        <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
+        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function RevenueTrend({ sales }: { sales: SalesRecord[] }) {
   const data = sales.map((d) => ({ name: d.month.slice(0, 3), Revenue: d.revenue }));
@@ -32,7 +64,7 @@ function RevenueTrend({ sales }: { sales: SalesRecord[] }) {
   );
 }
 
-const COLORS = ["#4f46e5", "#ec4899", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"];
+const COLORS = ["#4f46e5", "#ec4899", "#10b981", "#f59e0b", "#8b5cf6", "#06b4d6"];
 
 function CategoryPie({ data }: { data: { name: string; count: number }[] }) {
   return (
@@ -121,8 +153,15 @@ function PerformanceMetrics({ sales }: { sales: SalesRecord[] }) {
 }
 
 export default function AnalyticsPage() {
-  const sales = useSales();
-  const products = useProducts();
+  const storeSales = useSales();
+  const storeProducts = useProducts();
+
+  if (storeSales.loading || storeProducts.loading) return <LoadingSkeleton />;
+  if (storeSales.error || storeProducts.error) return <ErrorState message={storeSales.error || storeProducts.error || ""} onRetry={() => { storeSales.refetch(); storeProducts.refetch(); }} />;
+
+  const sales = storeSales.data;
+  const products = storeProducts.data;
+
   const catData = useMemo(() => {
     const cats = [...new Set(products.map((p) => p.category))];
     return cats.map((name) => ({ name, count: products.filter((p) => p.category === name).length }));
@@ -155,6 +194,12 @@ export default function AnalyticsPage() {
         <div className="lg:col-span-2"><ProfitAnalysis sales={sales} /></div>
         <PerformanceMetrics sales={sales} />
       </motion.div>
+
+      {sales.length === 0 && products.length === 0 && (
+        <motion.div variants={fadeUp} className="flex flex-col items-center py-16">
+          <p className="text-sm text-muted/60">No data available yet. Seed the database to see analytics.</p>
+        </motion.div>
+      )}
 
       <motion.div variants={fadeUp} className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-amber-400/35 to-amber-400/5" />

@@ -8,8 +8,25 @@ async function main() {
   await prisma.user.upsert({
     where: { email: "admin@merchflow.com" },
     update: {},
-    create: { name: "Jane Cooper", email: "admin@merchflow.com", password, role: "admin" },
+    create: { name: "Tyrone Alariao", email: "admin@merchflow.com", password, role: "admin" },
   });
+
+  const categories = [
+    { name: "Electronics", slug: "electronics" },
+    { name: "Fashion", slug: "fashion" },
+    { name: "Home & Living", slug: "home-living" },
+    { name: "Sports", slug: "sports" },
+    { name: "Beauty", slug: "beauty" },
+    { name: "Accessories", slug: "accessories" },
+  ];
+
+  for (const c of categories) {
+    await prisma.category.upsert({
+      where: { slug: c.slug },
+      update: c,
+      create: c,
+    });
+  }
 
   const products = [
     { id: 1, name: "Wireless Noise-Cancelling Headphones", brand: "SonicWave", price: 249.99, cost: 145.00, originalPrice: 349.99, rating: 4.8, reviews: 2341, badge: "-29%", image: "🎧", category: "Electronics", inStock: true, stock: 156, sku: "SNC-001", createdAt: "2025-01-15" },

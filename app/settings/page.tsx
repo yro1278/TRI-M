@@ -110,7 +110,7 @@ export default function SettingsPage() {
             <h3 className="text-sm font-semibold text-foreground mb-4">User Management</h3>
             <div className="space-y-2">
               {[
-                { name: "Jane Cooper", email: "admin@merchflow.com", role: "Admin", status: "Active" },
+                { name: "Tyrone Alariao", email: "admin@merchflow.com", role: "Admin", status: "Active" },
                 { name: "John Smith", email: "staff@merchflow.com", role: "Staff", status: "Active" },
               ].map((user) => (
                 <div key={user.email} className="flex items-center justify-between rounded-[12px] border border-border/10 px-4 py-3 hover:bg-border/5 transition-colors">

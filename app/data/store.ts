@@ -10,7 +10,9 @@ export async function getProduct(id: number): Promise<Product | undefined> {
 
 export async function addProduct(p: Omit<Product, "id" | "createdAt">): Promise<Product> {
   const product = await api.products.create(p);
-  await api.activities.create({ type: "product", text: `New product added: ${p.name}`, time: "Just now" });
+  try {
+    await api.activities.create({ type: "product", text: `New product added: ${p.name}`, time: "Just now" });
+  } catch {}
   return product;
 }
 
@@ -47,10 +49,18 @@ export async function placeOrder(
   customer: string, email: string, paymentMethod: string
 ): Promise<Order> {
   const order = await api.orders.create({ items, customer, email, paymentMethod });
-  await api.activities.create({ type: "order", text: `New order ${order.orderNo} from ${customer}`, time: "Just now", amount: `$${order.total.toFixed(2)}` });
+  try {
+    await api.activities.create({
+      type: "order", text: `New order ${order.orderNo} from ${customer}`, time: "Just now", amount: `$${order.total.toFixed(2)}`,
+    });
+  } catch {}
   return order;
 }
 
 export async function updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
   try { return await api.orders.update(id, { status }); } catch { return undefined; }
+}
+
+export async function seedDatabase(): Promise<boolean> {
+  try { await api.seed(); return true; } catch { return false; }
 }
