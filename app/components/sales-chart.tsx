@@ -2,7 +2,7 @@
 
 import { useSales } from "../data/use-store";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 
 export default function SalesChart() {
@@ -16,57 +16,74 @@ export default function SalesChart() {
   }));
 
   return (
-    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-primary/40 to-primary/5" />
-      <div className="p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-5">
+    <div className="bg-surface rounded-2xl shadow-lg border border-border/40 overflow-hidden h-full">
+      <div className="p-6 sm:p-7">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Monthly Sales Trend</h3>
-            <p className="text-xs text-muted/35 mt-0.5">Revenue performance over the year</p>
+            <h3 className="text-base font-bold text-foreground tracking-tight">Monthly Sales Overview</h3>
+            <p className="text-sm text-muted/60 mt-1">Revenue performance over the year</p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-xs text-muted/35">
-              <span className="h-2 w-2 rounded-sm bg-primary" /> Revenue
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-2 text-xs font-medium text-muted/70">
+              <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Revenue
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-muted/35">
-              <span className="h-2 w-2 rounded-sm bg-emerald-400" /> Profit
+            <span className="flex items-center gap-2 text-xs font-medium text-muted/70">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /> Profit
             </span>
           </div>
         </div>
         {storeSales.loading ? (
-          <div className="h-56 sm:h-64 flex items-center justify-center">
-            <div className="h-52 w-full rounded bg-border/10 animate-pulse" />
+          <div className="h-72 flex items-center justify-center">
+            <div className="h-full w-full rounded-xl bg-border/10 animate-pulse" />
           </div>
         ) : storeSales.error ? (
-          <div className="h-56 sm:h-64 flex items-center justify-center">
-            <p className="text-xs text-muted/60">Failed to load chart data</p>
+          <div className="h-72 flex items-center justify-center">
+            <p className="text-sm text-muted/60">Failed to load chart data</p>
           </div>
         ) : chartData.length === 0 ? (
-          <div className="h-56 sm:h-64 flex items-center justify-center">
-            <p className="text-xs text-muted/60">No sales data available</p>
+          <div className="h-72 flex items-center justify-center">
+            <p className="text-sm text-muted/60">No sales data available</p>
           </div>
         ) : (
-        <div className="h-56 sm:h-64">
+        <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} barGap={4} barCategoryGap="16%">
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" strokeOpacity={0.3} vertical={false} />
+            <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <CartesianGrid strokeDasharray="4 4" stroke="var(--color-border)" strokeOpacity={0.25} vertical={false} />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--color-muted)" }} dy={8} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--color-muted)" }} dx={-4} />
               <Tooltip
-                cursor={{ fill: "var(--color-border)", opacity: 0.1 }}
+                cursor={{ stroke: "var(--color-border)", strokeDasharray: "4 4" }}
                 contentStyle={{
                   background: "var(--color-card)",
                   border: "1px solid var(--color-border)",
-                  borderRadius: "12px",
-                  fontSize: "12px",
+                  borderRadius: "16px",
+                  fontSize: "13px",
                   boxShadow: "var(--shadow-xl)",
-                  padding: "10px 14px",
+                  padding: "12px 16px",
+                  backdropFilter: "blur(12px)",
                 }}
-                labelStyle={{ fontWeight: 600, marginBottom: 4 }}
+                labelStyle={{ fontWeight: 600, marginBottom: 6, color: "var(--color-foreground)" }}
               />
-              <Bar dataKey="Revenue" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={32} />
-              <Bar dataKey="Profit" fill="#34d399" radius={[4, 4, 0, 0]} maxBarSize={32} />
-            </BarChart>
+              <Area type="monotone" dataKey="Revenue" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#revenueGradient)" dot={false} activeDot={{ r: 5, fill: "var(--color-primary)", stroke: "var(--color-card)", strokeWidth: 3 }} />
+              <Area type="monotone" dataKey="Profit" stroke="#34d399" strokeWidth={2.5} fill="url(#profitGradient)" dot={false} activeDot={{ r: 5, fill: "#34d399", stroke: "var(--color-card)", strokeWidth: 3 }} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
         )}

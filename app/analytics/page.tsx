@@ -5,16 +5,23 @@ import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line,
 } from "recharts";
-import { RefreshCw, AlertCircle } from "lucide-react";
+import { RefreshCw, AlertCircle, TrendingUp, BarChart3 } from "lucide-react";
 import { useSales, useProducts } from "../data/use-store";
 import type { SalesRecord } from "@/lib/api";
+import { fadeUp, stagger } from "../components/page-wrapper";
+
+const COLORS = ["#4f46e5", "#ec4899", "#10b981", "#f59e0b", "#8b5cf6", "#06b4d6"];
 
 function LoadingSkeleton() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <div className="space-y-2 mb-8">
+        <div className="h-7 w-32 rounded bg-border/30 animate-pulse" />
+        <div className="h-4 w-48 rounded bg-border/20 animate-pulse" />
+      </div>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 mb-6">
         {[...Array(2)].map((_, i) => (
-          <div key={i} className="bg-card rounded-[20px] border border-border/20 p-5">
+          <div key={i} className="bg-surface rounded-xl border border-border/50 p-5">
             <div className="h-4 w-24 rounded bg-border/30 animate-pulse mb-4" />
             <div className="h-48 rounded bg-border/10 animate-pulse" />
           </div>
@@ -33,7 +40,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
         </div>
         <p className="text-sm font-medium text-foreground">Failed to load analytics</p>
         <p className="text-xs text-muted/60 mt-1 mb-4">{message}</p>
-        <button onClick={onRetry} className="btn-primary text-xs flex items-center gap-1.5">
+        <button onClick={onRetry} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-dark transition-all">
           <RefreshCw className="h-3.5 w-3.5" /> Retry
         </button>
       </div>
@@ -44,8 +51,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 function RevenueTrend({ sales }: { sales: SalesRecord[] }) {
   const data = sales.map((d) => ({ name: d.month.slice(0, 3), Revenue: d.revenue }));
   return (
-    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
+    <div className="bg-surface rounded-xl border border-border/50 overflow-hidden">
       <div className="p-5">
         <h3 className="text-sm font-semibold text-foreground mb-4">Revenue Trend</h3>
         <div className="h-56">
@@ -64,12 +70,9 @@ function RevenueTrend({ sales }: { sales: SalesRecord[] }) {
   );
 }
 
-const COLORS = ["#4f46e5", "#ec4899", "#10b981", "#f59e0b", "#8b5cf6", "#06b4d6"];
-
 function CategoryPie({ data }: { data: { name: string; count: number }[] }) {
   return (
-    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-primary/35 to-primary/5" />
+    <div className="bg-surface rounded-xl border border-border/50 overflow-hidden">
       <div className="p-5">
         <h3 className="text-sm font-semibold text-foreground mb-4">Categories</h3>
         <div className="h-56 flex items-center gap-4">
@@ -83,7 +86,7 @@ function CategoryPie({ data }: { data: { name: string; count: number }[] }) {
           </ResponsiveContainer>
           <div className="space-y-2">
             {data.map((d, i) => (
-              <div key={d.name} className="flex items-center gap-2 text-xs text-muted/65">
+              <div key={d.name} className="flex items-center gap-2 text-xs text-muted/60">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                 {d.name} <span className="text-foreground font-medium">{d.count}</span>
               </div>
@@ -98,8 +101,7 @@ function CategoryPie({ data }: { data: { name: string; count: number }[] }) {
 function ProfitAnalysis({ sales }: { sales: SalesRecord[] }) {
   const data = sales.map((d) => ({ name: d.month.slice(0, 3), Profit: d.revenue - d.cost }));
   return (
-    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-emerald-400/35 to-emerald-400/5" />
+    <div className="bg-surface rounded-xl border border-border/50 overflow-hidden">
       <div className="p-5">
         <h3 className="text-sm font-semibold text-foreground mb-4">Profit</h3>
         <div className="h-48">
@@ -132,14 +134,13 @@ function PerformanceMetrics({ sales }: { sales: SalesRecord[] }) {
   ];
 
   return (
-    <div className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-violet-400/35 to-violet-400/5" />
+    <div className="bg-surface rounded-xl border border-border/50 overflow-hidden">
       <div className="p-5">
         <h3 className="text-sm font-semibold text-foreground mb-3">Key Metrics</h3>
         <div className="space-y-2">
           {metrics.map((m) => (
-            <div key={m.label} className="flex items-center justify-between border-b border-border/10 py-2 last:border-0">
-              <span className="text-sm text-muted/65">{m.label}</span>
+            <div key={m.label} className="flex items-center justify-between border-b border-border/20 py-2 last:border-0">
+              <span className="text-sm text-muted/70">{m.label}</span>
               <div className="text-right">
                 <p className="text-sm font-semibold text-foreground">{m.value}</p>
                 <span className={`text-xs ${m.up ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>{m.change}</span>
@@ -167,18 +168,14 @@ export default function AnalyticsPage() {
     return cats.map((name) => ({ name, count: products.filter((p) => p.category === name).length }));
   }, [products]);
 
-  const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] as const } } };
-  const container = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+  const container = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 
   return (
     <motion.div variants={container} initial="hidden" animate="visible" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <motion.div variants={fadeUp} className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Analytics</h1>
-            <p className="text-sm text-muted/65 mt-0.5">Data-driven insights</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Analytics</h1>
+          <p className="text-sm text-muted/60 mt-1">Data-driven insights and performance metrics</p>
         </div>
         <span className="flex items-center gap-1.5 text-xs text-muted/60">
           <RefreshCw className="h-3 w-3" /> Auto-refresh
@@ -201,11 +198,10 @@ export default function AnalyticsPage() {
         </motion.div>
       )}
 
-      <motion.div variants={fadeUp} className="card-hover bg-card rounded-[20px] border border-border/20 overflow-hidden">
-        <div className="h-1 bg-gradient-to-r from-amber-400/35 to-amber-400/5" />
+      <motion.div variants={fadeUp} className="bg-surface rounded-xl border border-border/50 overflow-hidden">
         <div className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <div className="h-2 w-2 rounded-full bg-primary" />
+            <BarChart3 className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Insights</h3>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -214,7 +210,7 @@ export default function AnalyticsPage() {
               { text: "Supplier SPI average is 84%. Consider improvements.", type: "warning" },
               { text: "Profit margin at 48.2% is healthy.", type: "info" },
             ].map((i, idx) => (
-              <div key={idx} className={`rounded-[12px] border p-3 text-xs ${
+              <div key={idx} className={`rounded-lg border p-3 text-xs ${
                 i.type === "positive" ? "bg-emerald-50/50 border-emerald-200/50 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" :
                 i.type === "warning" ? "bg-amber-50/50 border-amber-200/50 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400" :
                 "bg-blue-50/50 border-blue-200/50 text-blue-800 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400"

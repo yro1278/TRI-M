@@ -1,41 +1,32 @@
 export default function RootLoading() {
   return (
-    <div className="animate-fade-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex items-center gap-3">
-        <div className="h-8 w-1 rounded-full bg-border/50" />
-        <div>
-          <div className="h-7 w-40 rounded bg-border/30 animate-pulse" />
-          <div className="h-4 w-56 rounded bg-border/20 animate-pulse mt-2" />
-        </div>
+    <div className="animate-fade-in max-w-[1400px] mx-auto px-6 lg:px-10 py-8">
+      <div className="space-y-3 mb-10">
+        <div className="h-4 w-48 rounded-lg bg-border/30 animate-pulse" />
+        <div className="h-10 w-96 rounded-lg bg-border/20 animate-pulse" />
+        <div className="h-5 w-[600px] rounded-lg bg-border/20 animate-pulse" />
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-card rounded-xl p-5 shadow-sm border border-border/30">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-3 w-16 rounded bg-border/30 animate-pulse" />
-              <div className="h-7 w-7 rounded-lg bg-border/20 animate-pulse" />
-            </div>
-            <div className="h-8 w-24 rounded bg-border/30 animate-pulse" />
-            <div className="h-4 w-20 rounded bg-border/20 animate-pulse mt-2" />
+      <div className="grid grid-cols-2 gap-5 lg:grid-cols-5 mb-8">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="bg-surface rounded-2xl shadow-sm border border-border/40 p-6">
+            <div className="h-4 w-24 rounded-lg bg-border/30 animate-pulse mb-4" />
+            <div className="h-9 w-32 rounded-lg bg-border/20 animate-pulse mb-3" />
+            <div className="h-4 w-20 rounded-lg bg-border/20 animate-pulse" />
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
-        <div className="lg:col-span-2 bg-card rounded-xl p-5 shadow-sm border border-border/30">
-          <div className="h-4 w-24 rounded bg-border/30 animate-pulse mb-4" />
-          <div className="h-52 rounded bg-border/10 animate-pulse" />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 mb-8">
+        <div className="lg:col-span-3 bg-surface rounded-2xl shadow-sm border border-border/40 p-7">
+          <div className="h-5 w-40 rounded-lg bg-border/30 animate-pulse mb-5" />
+          <div className="h-72 rounded-xl bg-border/10 animate-pulse" />
         </div>
-        <div className="bg-card rounded-xl p-5 shadow-sm border border-border/30">
-          <div className="h-4 w-20 rounded bg-border/30 animate-pulse mb-4" />
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3 py-2">
-              <div className="h-6 w-6 rounded bg-border/20 animate-pulse" />
-              <div className="flex-1">
-                <div className="h-3 w-32 rounded bg-border/20 animate-pulse" />
-                <div className="h-2 w-20 rounded bg-border/10 animate-pulse mt-1" />
-              </div>
-            </div>
-          ))}
+        <div className="lg:col-span-2 bg-surface rounded-2xl shadow-sm border border-border/40 p-7">
+          <div className="h-5 w-36 rounded-lg bg-border/30 animate-pulse mb-5" />
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-12 rounded-lg bg-border/10 animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     </div>

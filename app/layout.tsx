@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "./components/theme-provider";
 import LayoutShell from "./components/layout-shell";
@@ -9,15 +9,10 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "TRI-M inc — Enterprise Platform",
+  title: "TRI-M — SME Management System",
   description:
-    "Enterprise-grade merchandising dashboard for inventory management, sales analytics, supplier evaluation, and business intelligence.",
+    "Enterprise-grade merchandising dashboard for inventory management, sales analytics, supplier evaluation, and business intelligence for small and medium enterprises.",
 };
 
 export default function RootLayout({
@@ -28,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background antialiased">
